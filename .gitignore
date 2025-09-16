@@ -1,0 +1,8 @@
+node_modules/
+.parcel-cache/
+dist/
+*.env
+.env
+fragments/.env
+fragments-ui/.env
+.DS_Store
