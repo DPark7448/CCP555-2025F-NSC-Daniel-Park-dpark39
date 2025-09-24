@@ -21,6 +21,11 @@ jobs:
     # We'll run this on a Linux (Ubuntu) VM, since we'll deploy on Linux too.
     runs-on: ubuntu-latest
     # We run these steps one after the other, and if any fail, we stop the process
+    
+    defaults:
+      run:
+        working-directory: fragments
+
     steps:
       # [URL documentation]
       - name: Check out code
