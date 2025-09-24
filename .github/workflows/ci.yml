@@ -34,6 +34,7 @@ jobs:
           node-version: 'lts/*'
           # Cache npm dependencies so they don't have to be downloaded next time - http://localhost:8080
           cache: 'npm'
+          cache-dependency-path: fragments/package-lock.json
  
       - name: Install node dependencies
         # Use `ci` vs. `install`, see http://localhost:8080
