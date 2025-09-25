@@ -1,18 +1,17 @@
 // eslint.config.mjs
-import { defineConfig } from 'eslint/config';
-import js from '@eslint/js';
+ 
 import globals from 'globals';
-
-export default defineConfig([
+import pluginJs from '@eslint/js';
+ 
+export default [
+  { files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' } },
   {
-    files: ['**/*.{js,cjs,mjs}'],
     languageOptions: {
-      sourceType: 'commonjs',
       globals: {
         ...globals.node,
+        ...globals.jest,
       },
     },
   },
-
-  js.configs.recommended,
-]);
+  pluginJs.configs.recommended,
+];
