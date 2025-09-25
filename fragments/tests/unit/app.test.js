@@ -10,18 +10,14 @@ describe('404 handler', () => {
 
     expect(res.status).toBe(404);
 
-    // If your 404 returns JSON:
     if (res.headers['content-type']) {
       expect(res.headers['content-type']).toMatch(/json/i);
     }
-
-    // Match your standardized error shape (tweak if yours differs)
     expect(res.body).toMatchObject({
       status: 'error',
       error: { code: 404 },
     });
 
-    // Optional check for message text if present
     if (res.body?.error?.message) {
       const msg = res.body.error.message.toLowerCase();
       expect(msg).toContain('not');
