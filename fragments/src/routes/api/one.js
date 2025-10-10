@@ -10,7 +10,6 @@ module.exports = async (req, res) => {
   res.status(200).json(
     createSuccessResponse({
       fragment: { ...frag },
-      // A1: only text/plain, return text
       data: data ? data.toString() : '',
     }),
   );
