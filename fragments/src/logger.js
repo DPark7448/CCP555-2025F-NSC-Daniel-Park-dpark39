@@ -1,10 +1,11 @@
 // src/logger.js
 const pino = require('pino');
 
-// Use `info` unless LOG_LEVEL is set
+// Default to 'info' unless LOG_LEVEL is set
 const options = { level: process.env.LOG_LEVEL || 'info' };
 
-// Pretty-print only in debug
+/* istanbul ignore next */
+// Pretty-print only when explicitly in debug (hard to hit in unit tests)
 if (options.level === 'debug') {
   options.transport = {
     target: 'pino-pretty',
@@ -12,6 +13,4 @@ if (options.level === 'debug') {
   };
 }
 
-const logger = pino(options); 
-
-module.exports = logger; 
+module.exports = pino(options);
