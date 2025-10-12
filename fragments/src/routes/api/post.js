@@ -3,7 +3,7 @@ const contentType = require('content-type');
 const Fragment = require('../../model/fragment');
 const { createErrorResponse, createSuccessResponse } = require('../../response');
 
-// Raw body parser that only runs for supported types
+
 const rawBody = () =>
   express.raw({
     inflate: true,
@@ -11,7 +11,7 @@ const rawBody = () =>
     type: (req) => {
       try {
         const { type } = contentType.parse(req);
-        return Fragment.isSupportedType(type); // A1: text/plain only
+        return Fragment.isSupportedType(type); 
       } catch {
         return false;
       }

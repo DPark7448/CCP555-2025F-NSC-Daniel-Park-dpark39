@@ -5,16 +5,32 @@
     <title>Fragments UI</title>
     <link rel="stylesheet" href="https://unpkg.com/bamboo.css" />
     <script type="module" src="src/app.js"></script>
+    <style>
+      pre { background:#111; color:#ddd; padding:.75rem; border-radius:8px; overflow:auto; }
+    </style>
   </head>
   <body>
     <h1>Fragments UI</h1>
+
     <section>
       <nav>
         <button id="login">Login</button>
       </nav>
     </section>
+
     <section hidden id="user">
       <h2>Hello <span class="username"></span>!</h2>
+
+      <div style="margin:.5rem 0 1rem">
+        <button id="create">Create "hello from UI"</button>
+        <button id="open">Open latest</button>
+      </div>
+
+      <h3>List</h3>
+      <pre id="out">{}</pre>
+
+      <h3>Latest fragment data</h3>
+      <pre id="data"></pre>
     </section>
   </body>
 </html>

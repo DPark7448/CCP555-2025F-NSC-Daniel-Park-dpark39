@@ -1,4 +1,3 @@
-// run this mock BEFORE requiring the module under test
 const mockHydrate = jest.fn();
 const mockVerify = jest.fn().mockResolvedValue({ email: 'someone@example.com' });
 
@@ -33,7 +32,6 @@ describe('auth/cognito module', () => {
     expect(typeof mod.authenticate).toBe('function');
     expect(mockHydrate).toHaveBeenCalled();
 
-    // 🔹 Cover the exported functions too
     const strat = mod.strategy();          // constructs BearerStrategy
     expect(strat).toBeTruthy();
 
@@ -47,7 +45,6 @@ describe('auth/cognito module', () => {
     expect(typeof mod.authenticate).toBe('function');
     expect(mockHydrate).toHaveBeenCalled();
 
-    // 🔹 Call the exports here as well to keep both branches covered
     const strat = mod.strategy();
     expect(strat).toBeTruthy();
 

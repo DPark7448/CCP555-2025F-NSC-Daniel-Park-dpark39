@@ -1,42 +1,52 @@
 // src/app.js
-
 import { signIn, getUser } from './auth';
-import { getUserFragments } from './api';
+import { getUserFragments, createTextFragment, getFragmentById } from './api';
 
 async function init() {
-  // Get our UI elements
   const userSection = document.querySelector('#user');
-  const loginBtn = document.querySelector('#login');
-  // Wire up event handlers to deal with login and logout.
-  loginBtn.onclick = () => {
-    // Sign-in via the Amazon Cognito Hosted UI (requires redirects)
-    signIn();
-  };
+  const loginBtn     = document.querySelector('#login');
+  const createBtn    = document.querySelector('#create');
+  const openBtn      = document.querySelector('#open');
+  const out          = document.querySelector('#out');
+  const dataOut      = document.querySelector('#data');
 
-  // See if we're signed in (i.e., we'll have a `user` object)
+  loginBtn.onclick = () => signIn();
+
   const user = await getUser();
-  if (!user) {
-    return;
-  }
+  if (!user) return;
 
-  // Update the UI to welcome the user
   userSection.hidden = false;
-
-  // Show the user's username
   userSection.querySelector('.username').innerText = user.username;
-
-  // Disable the Login button
   loginBtn.disabled = true;
 
-  try {
-    const userFragments = await getUserFragments(user);
-    console.log('User fragments:', userFragments);
+  let lastId = null;
 
-    // TODO: later in the course, we’ll show these fragments in the UI
-  } catch (err) {
-    console.error('Failed to fetch user fragments:', err);
+  async function refreshList() {
+    const list = await getUserFragments(user);
+    out.textContent = JSON.stringify(list, null, 2);
+    // capture newest id if present
+    if (list?.fragments?.length) {
+      lastId = list.fragments[list.fragments.length - 1];
+    }
   }
+
+  await refreshList();
+
+  createBtn.onclick = async () => {
+    const { fragment } = await createTextFragment(user, 'hello from UI');
+    lastId = fragment.id;
+    await refreshList(); // show the id in the list
+    alert(`Created: ${fragment.id}`);
+  };
+
+  openBtn.onclick = async () => {
+    if (!lastId) {
+      alert('No fragment id yet — create one first.');
+      return;
+    }
+    const text = await getFragmentById(user, lastId);
+    dataOut.textContent = text;
+  };
 }
 
-// Wait for the DOM to be ready, then start the app
 addEventListener('DOMContentLoaded', init);

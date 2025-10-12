@@ -1,30 +1,37 @@
 // src/api.js
- 
-// fragments microservice API to use, defaults to localhost:8080 if not set in env
+
 const apiUrl = process.env.API_URL || 'http://localhost:8080';
- 
-/**
- * Given an authenticated user, request all fragments for this user from the
- * fragments microservice (currently only running locally). We expect a user
- * to have an `idToken` attached, so we can send that along with the request.
- */
+console.log('API_URL from env:', apiUrl);
+
 export async function getUserFragments(user) {
   console.log('Requesting user fragments data...');
-  try {
-    const fragmentsUrl = new URL('/v1/fragments', apiUrl);
-    const res = await fetch(fragmentsUrl, {
-      // Generate headers with the proper Authorization bearer token to pass.
-      // We are using the `authorizationHeaders()` helper method we defined
-      // earlier, to automatically attach the user's ID token.
-      headers: user.authorizationHeaders(),
-    });
-    if (!res.ok) {
-      throw new Error(`${res.status} ${res.statusText}`);
-    }
-    const data = await res.json();
-    console.log('Successfully got user fragments data', { data });
-    return data;
-  } catch (err) {
-    console.error('Unable to call GET /v1/fragments', { err });
+  const url = new URL('/v1/fragments', apiUrl);
+  const res = await fetch(url, { headers: user.authorizationHeaders() });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.json(); // { status:'ok', fragments:[id,...] }
+}
+
+export async function createTextFragment(user, text) {
+  const url = new URL('/v1/fragments', apiUrl);
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: user.authorizationHeaders('text/plain'),
+    body: text,
+  });
+  if (!res.ok) {
+    const msg = await res.text().catch(() => '');
+    console.error('POST /v1/fragments failed', res.status, msg);
+    throw new Error(`POST failed: ${res.status}`);
   }
+  return res.json(); // { status:'ok', fragment:{ id, ... } }
+}
+
+// NEW: GET /v1/fragments/:id (returns text/plain for this assignment)
+export async function getFragmentById(user, id) {
+  const url = new URL(`/v1/fragments/${id}`, apiUrl);
+  const res = await fetch(url, {
+    headers: user.authorizationHeaders('text/plain'),
+  });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.text(); // "hello from UI"
 }
