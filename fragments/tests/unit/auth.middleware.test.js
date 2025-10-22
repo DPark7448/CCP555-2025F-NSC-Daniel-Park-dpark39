@@ -1,8 +1,6 @@
-// tests/unit/auth.middleware.test.js
 jest.mock('passport', () => ({
   authenticate: jest.fn((_strategy, _opts, cb) => {
     return (req, res, next) => {
-      // Make ESLint happy (no side effects)
       void res;
       void next;
 

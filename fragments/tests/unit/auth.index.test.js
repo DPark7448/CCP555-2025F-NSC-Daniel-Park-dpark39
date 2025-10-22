@@ -1,6 +1,5 @@
 const path = require('path');
 
-// Mock aws-jwt-verify BEFORE requiring auth/index
 jest.mock('aws-jwt-verify', () => ({
   CognitoJwtVerifier: {
     create: jest.fn(() => ({
@@ -10,7 +9,6 @@ jest.mock('aws-jwt-verify', () => ({
   },
 }));
 
-// helper to load a fresh copy of the selector with new env each time
 const fresh = () => {
   jest.resetModules();
   return require('../../src/auth/index');
