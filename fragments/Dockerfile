@@ -1,25 +1,26 @@
-# Fragments microservice — Dockerfile (Cognito)
-FROM node:22.12.0
+FROM node:22.12.0-alpine AS deps
+WORKDIR /app
+COPY package*.json ./
+# reproducible installs; omit dev deps for the runtime image
+RUN npm ci --omit=dev
 
-LABEL maintainer="Daniel Park <dpark39@myseneca.com>"
-LABEL description="Fragments node.js microservice"
-
-# Reasonable defaults (override at runtime)
-ENV PORT=8080 \
+# ---- runtime image
+FROM node:22.12.0-alpine AS runner
+ENV NODE_ENV=production \
+    PORT=8080 \
     NPM_CONFIG_LOGLEVEL=warn \
     NPM_CONFIG_COLOR=false
 
-# App directory
 WORKDIR /app
 
-# Install deps first for better layer caching
-COPY package*.json ./
-RUN npm install
+# bring in node_modules from deps layer (better caching, smaller image)
+COPY --from=deps /app/node_modules ./node_modules
 
-# Copy source
-COPY ./src ./src
+# copy app source (adjust if you need other files)
+COPY . .
 
-# Document port
+# run as non-root (built-in 'node' user exists in node images)
+USER node
+
 EXPOSE 8080
-
-CMD npm start
+CMD ["npm","start"]
