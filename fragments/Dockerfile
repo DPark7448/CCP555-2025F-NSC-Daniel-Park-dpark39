@@ -1,8 +1,7 @@
 # Fragments microservice — Dockerfile (Cognito)
-# Pin Node version to match your dev box
 FROM node:22.12.0
 
-LABEL maintainer="Daniel Park <you@example.com>"
+LABEL maintainer="Daniel Park <dpark39@myseneca.com>"
 LABEL description="Fragments node.js microservice"
 
 # Reasonable defaults (override at runtime)
@@ -23,5 +22,4 @@ COPY ./src ./src
 # Document port
 EXPOSE 8080
 
-# Start server
 CMD npm start
