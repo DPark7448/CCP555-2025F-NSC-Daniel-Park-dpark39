@@ -1,0 +1,15 @@
+node_modules
+.parcel-cache
+dist
+
+.git
+.gitignore
+Dockerfile
+npm-debug.log
+*.log
+
+.env
+.env.*
+coverage
+.vscode
+ReportDpark.docx
