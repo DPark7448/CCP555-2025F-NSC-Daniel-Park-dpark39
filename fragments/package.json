@@ -20,7 +20,7 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "@eslint/js": "^9.35.0",
-    "dotenv": "^17.2.2",
+    "dotenv": "^17.2.3",
     "eslint": "^9.35.0",
     "globals": "^16.3.0",
     "http-auth": "^4.2.1",
