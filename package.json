@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "dotenv": "^16.6.1"
+  },
+  "devDependencies": {
+    "@orangeopensource/hurl": "^7.1.0"
   }
 }
-
