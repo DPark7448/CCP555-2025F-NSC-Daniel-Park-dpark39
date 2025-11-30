@@ -4,5 +4,6 @@
   },
   "devDependencies": {
     "@orangeopensource/hurl": "^7.1.0"
-  }
+  },
+  "version": "0.9.0"
 }
