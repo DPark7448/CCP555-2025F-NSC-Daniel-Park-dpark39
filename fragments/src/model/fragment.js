@@ -8,12 +8,12 @@ const SUPPORTED_TYPES = new Set([
   'text/plain',
   'text/plain; charset=utf-8',
   'text/markdown',
-  'text/html',
+  // NOTE: text/html is intentionally NOT supported for this lab
   'application/json',
 ]);
 
 class Fragment {
-  constructor({ ownerId, type, id, created, updated, size = 0 }) {
+  constructor({ ownerId, type, id, created, updated, size = 0, raw = false }) {
     if (!ownerId) throw new Error('ownerId required');
     if (!Fragment.isSupportedType(type)) {
       throw new Error(`unsupported type: ${type}`);
@@ -27,6 +27,7 @@ class Fragment {
     this.created = created || now;
     this.updated = updated || now;
     this.size = size;
+    this.raw = raw;
   }
 
   static isSupportedType(type) {
@@ -43,8 +44,6 @@ class Fragment {
   }
 
   // List all fragments for a user
-  // expand=false → ids only
-  // expand=true  → full fragment objects
   static async byUser(ownerId, expand = false) {
     return store.listFragments(ownerId, expand);
   }
@@ -56,15 +55,15 @@ class Fragment {
 
   // Persist metadata + optional data
   async save(dataBuffer) {
-  if (dataBuffer) {
-    this.size = Buffer.byteLength(dataBuffer);
-    await store.writeFragmentData(this.ownerId, this.id, dataBuffer);
+    if (dataBuffer) {
+      this.size = Buffer.byteLength(dataBuffer);
+      await store.writeFragmentData(this.ownerId, this.id, dataBuffer);
+    }
+    this.updated = new Date().toISOString();
+    // NOTE: 3-arg API: ownerId, id, fragment meta
+    await store.writeFragment(this.ownerId, this.id, { ...this });
+    return this;
   }
-  this.updated = new Date().toISOString();
-  await store.writeFragment(this.ownerId, { ...this });
-
-  return this;
-}
 
   // Load data from backend (S3 or memory)
   async data() {

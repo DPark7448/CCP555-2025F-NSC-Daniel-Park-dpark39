@@ -1,8 +1,7 @@
 // src/model/data/aws/index.js
 
-// Use the in-memory store for fragment metadata
+// Use the in-memory store for fragment metadata (until DynamoDB is added)
 const memory = require('../memory');
-
 const logger = require('../../../logger');
 const s3Client = require('./s3Client');
 const {
@@ -11,9 +10,8 @@ const {
   DeleteObjectCommand,
 } = require('@aws-sdk/client-s3');
 
-// ---------- METADATA HELPERS (wrap memory store) ----------
+// ---------- METADATA (MemoryDB) ----------
 
-// Must match Fragment.save() → store.writeFragment(ownerId, id, fragment)
 function writeFragment(ownerId, id, fragment) {
   return memory.writeFragment(ownerId, id, fragment);
 }
@@ -26,18 +24,8 @@ function listFragments(ownerId, expand = false) {
   return memory.listFragments(ownerId, expand);
 }
 
-// ---------- S3 DATA HELPERS -------------------------------
+// ---------- DATA (S3) ----------
 
-// Convert a stream into a Buffer
-const streamToBuffer = (stream) =>
-  new Promise((resolve, reject) => {
-    const chunks = [];
-    stream.on('data', (chunk) => chunks.push(chunk));
-    stream.on('error', reject);
-    stream.on('end', () => resolve(Buffer.concat(chunks)));
-  });
-
-// Write a fragment's data to S3
 async function writeFragmentData(ownerId, id, data) {
   const params = {
     Bucket: process.env.AWS_S3_BUCKET_NAME,
@@ -56,7 +44,15 @@ async function writeFragmentData(ownerId, id, data) {
   }
 }
 
-// Read fragment data from S3 → Buffer
+// Convert S3 stream → Buffer
+const streamToBuffer = (stream) =>
+  new Promise((resolve, reject) => {
+    const chunks = [];
+    stream.on('data', (chunk) => chunks.push(chunk));
+    stream.on('error', reject);
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
+  });
+
 async function readFragmentData(ownerId, id) {
   const params = {
     Bucket: process.env.AWS_S3_BUCKET_NAME,
@@ -75,7 +71,6 @@ async function readFragmentData(ownerId, id) {
   }
 }
 
-// Delete fragment data from S3
 async function deleteFragmentData(ownerId, id) {
   const params = {
     Bucket: process.env.AWS_S3_BUCKET_NAME,
@@ -93,11 +88,8 @@ async function deleteFragmentData(ownerId, id) {
   }
 }
 
-// Delete fragment metadata + data
 async function deleteFragment(ownerId, id) {
-  // Delete data in S3 first…
   await deleteFragmentData(ownerId, id);
-  // …then remove metadata from the memory store
   return memory.deleteFragment(ownerId, id);
 }
 
@@ -107,6 +99,5 @@ module.exports = {
   readFragment,
   readFragmentData,
   deleteFragment,
-  deleteFragmentData,
   listFragments,
 };

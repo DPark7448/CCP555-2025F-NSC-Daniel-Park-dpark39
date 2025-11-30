@@ -1,69 +1,50 @@
-// src/model/data/memory/index.js
+'use strict';
 
-const { _fragments, _data } = require('./memory-db');
+const MemoryDB = require('./memory-db');
 
-function key(ownerId, id) {
-  return `${ownerId}:${id}`;
+// Single shared in-memory DB instance
+const db = new MemoryDB();
+
+// Write fragment metadata
+function writeFragment(ownerId, id, fragment) {
+  db.putFragment(ownerId, id, fragment);
+  return Promise.resolve();
 }
 
-// ---- Metadata helpers --------------------------------------
-
-function writeFragment(ownerId, fragment) {
-  const k = key(ownerId, fragment.id);
-  _fragments.set(k, fragment);
-}
-
+// Read fragment metadata
 function readFragment(ownerId, id) {
-  const k = key(ownerId, id);
-  return _fragments.get(k);
+  return Promise.resolve(db.getFragment(ownerId, id));
 }
 
+// Write fragment data (Buffer)
+function writeFragmentData(ownerId, id, data) {
+  db.putFragmentData(ownerId, id, data);
+  return Promise.resolve();
+}
+
+// Read fragment data (Buffer)
+function readFragmentData(ownerId, id) {
+  return Promise.resolve(db.getFragmentData(ownerId, id));
+}
+
+// List fragment ids for a user
 function listFragments(ownerId, expand = false) {
-  const prefix = `${ownerId}:`;
-
-  const entries = [..._fragments.entries()].filter(([k]) =>
-    k.startsWith(prefix),
+  return db.listFragments(ownerId).then((fragments) =>
+    expand ? fragments : fragments.map((f) => f.id)
   );
-
-  if (expand) {
-    // return fragment objects
-    return entries.map(([, frag]) => frag);
-  }
-
-  // return just ids
-  return entries.map(([, frag]) => frag.id);
 }
 
+// Delete fragment (metadata + data)
 function deleteFragment(ownerId, id) {
-  const k = key(ownerId, id);
-  _fragments.delete(k);
-  _data.delete(k);
-}
-
-// ---- Data helpers (for non-AWS mode) -----------------------
-
-async function writeFragmentData(ownerId, id, data) {
-  const k = key(ownerId, id);
-  const buf = Buffer.isBuffer(data) ? data : Buffer.from(data);
-  _data.set(k, buf);
-}
-
-async function readFragmentData(ownerId, id) {
-  const k = key(ownerId, id);
-  return _data.get(k);
-}
-
-async function deleteFragmentData(ownerId, id) {
-  const k = key(ownerId, id);
-  _data.delete(k);
+  db.deleteFragment(ownerId, id);
+  return Promise.resolve();
 }
 
 module.exports = {
   writeFragment,
   readFragment,
-  listFragments,
-  deleteFragment,
   writeFragmentData,
   readFragmentData,
-  deleteFragmentData,
+  listFragments,
+  deleteFragment,
 };
