@@ -1,17 +1,28 @@
+// src/model/fragment.js
+
 const crypto = require('crypto');
 const store = require('./data');
-const { _fragments } = require('./data/memory/memory-db');
 
-const SUPPORTED = new Set(['text/plain']);
+// Types we support
+const SUPPORTED_TYPES = new Set([
+  'text/plain',
+  'text/plain; charset=utf-8',
+  'text/markdown',
+  'text/html',
+  'application/json',
+]);
 
 class Fragment {
   constructor({ ownerId, type, id, created, updated, size = 0 }) {
     if (!ownerId) throw new Error('ownerId required');
-    if (!Fragment.isSupportedType(type)) throw new Error('unsupported type');
+    if (!Fragment.isSupportedType(type)) {
+      throw new Error(`unsupported type: ${type}`);
+    }
 
     this.ownerId = ownerId;
     this.type = type;
     this.id = id || crypto.randomUUID();
+
     const now = new Date().toISOString();
     this.created = created || now;
     this.updated = updated || now;
@@ -19,31 +30,43 @@ class Fragment {
   }
 
   static isSupportedType(type) {
-    return SUPPORTED.has(type);
+    if (!type) return false;
+    // normalize things like "text/plain; charset=utf-8"
+    const base = type.split(';')[0].trim();
+    return SUPPORTED_TYPES.has(type) || SUPPORTED_TYPES.has(base);
   }
 
+  // Look up a single fragment by owner + id
   static async byId(ownerId, id) {
     const meta = await store.readFragment(ownerId, id);
     return meta ? new Fragment(meta) : null;
   }
 
-  static async byUser(ownerId) {
-    // List all ids for this owner
-    return Array.from(_fragments.entries())
-      .filter(([k]) => k.startsWith(`${ownerId}:`))
-      .map(([, v]) => v.id);
+  // List all fragments for a user
+  // expand=false → ids only
+  // expand=true  → full fragment objects
+  static async byUser(ownerId, expand = false) {
+    return store.listFragments(ownerId, expand);
   }
 
+  // Delete a fragment (metadata + data)
+  static async delete(ownerId, id) {
+    return store.deleteFragment(ownerId, id);
+  }
+
+  // Persist metadata + optional data
   async save(dataBuffer) {
-    if (dataBuffer) {
-      this.size = Buffer.byteLength(dataBuffer);
-      await store.writeFragmentData(this.ownerId, this.id, dataBuffer);
-    }
-    this.updated = new Date().toISOString();
-    await store.writeFragment(this.ownerId, this.id, { ...this });
-    return this;
+  if (dataBuffer) {
+    this.size = Buffer.byteLength(dataBuffer);
+    await store.writeFragmentData(this.ownerId, this.id, dataBuffer);
   }
+  this.updated = new Date().toISOString();
+  await store.writeFragment(this.ownerId, { ...this });
 
+  return this;
+}
+
+  // Load data from backend (S3 or memory)
   async data() {
     return store.readFragmentData(this.ownerId, this.id);
   }

@@ -1,15 +1,10 @@
 // src/routes/api/get.js
 
-const { createSuccessResponse } = require('../../response'); 
 const Fragment = require('../../model/fragment');
+const { createSuccessResponse } = require('../../response');
 
-module.exports = (req, res) => {
-  // placeholder: return empty array for now
-  res.status(200).json(createSuccessResponse({ fragments: [] }));
-
-};
 module.exports = async (req, res) => {
-  // req.user.ownerId is set by our auth-middleware (hashed email)
-  const fragments = await Fragment.byUser(req.user.ownerId);
+  const expand = req.query.expand === '1' || req.query.expand === 'true';
+  const fragments = await Fragment.byUser(req.user.ownerId, expand);
   res.status(200).json(createSuccessResponse({ fragments }));
 };

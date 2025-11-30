@@ -1,24 +1,69 @@
+// src/model/data/memory/index.js
+
 const { _fragments, _data } = require('./memory-db');
 
-const key = (ownerId, id) => `${ownerId}:${id}`;
-const dataKey = (ownerId, id) => `${ownerId}:${id}:data`;
+function key(ownerId, id) {
+  return `${ownerId}:${id}`;
+}
 
-async function readFragment(ownerId, id) {
-  return _fragments.get(key(ownerId, id)) || null;
+// ---- Metadata helpers --------------------------------------
+
+function writeFragment(ownerId, fragment) {
+  const k = key(ownerId, fragment.id);
+  _fragments.set(k, fragment);
 }
-async function writeFragment(ownerId, id, fragment) {
-  _fragments.set(key(ownerId, id), fragment);
+
+function readFragment(ownerId, id) {
+  const k = key(ownerId, id);
+  return _fragments.get(k);
 }
+
+function listFragments(ownerId, expand = false) {
+  const prefix = `${ownerId}:`;
+
+  const entries = [..._fragments.entries()].filter(([k]) =>
+    k.startsWith(prefix),
+  );
+
+  if (expand) {
+    // return fragment objects
+    return entries.map(([, frag]) => frag);
+  }
+
+  // return just ids
+  return entries.map(([, frag]) => frag.id);
+}
+
+function deleteFragment(ownerId, id) {
+  const k = key(ownerId, id);
+  _fragments.delete(k);
+  _data.delete(k);
+}
+
+// ---- Data helpers (for non-AWS mode) -----------------------
+
+async function writeFragmentData(ownerId, id, data) {
+  const k = key(ownerId, id);
+  const buf = Buffer.isBuffer(data) ? data : Buffer.from(data);
+  _data.set(k, buf);
+}
+
 async function readFragmentData(ownerId, id) {
-  return _data.get(dataKey(ownerId, id)) || null;
+  const k = key(ownerId, id);
+  return _data.get(k);
 }
-async function writeFragmentData(ownerId, id, buf) {
-  _data.set(dataKey(ownerId, id), Buffer.from(buf));
+
+async function deleteFragmentData(ownerId, id) {
+  const k = key(ownerId, id);
+  _data.delete(k);
 }
 
 module.exports = {
-  readFragment,
   writeFragment,
-  readFragmentData,
+  readFragment,
+  listFragments,
+  deleteFragment,
   writeFragmentData,
+  readFragmentData,
+  deleteFragmentData,
 };
