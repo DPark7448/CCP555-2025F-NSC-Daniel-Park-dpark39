@@ -1,4 +1,4 @@
-// src/model/data/aws/index.js
+'use strict';
 
 // Use the in-memory store for fragment metadata (until DynamoDB is added)
 const memory = require('../memory');
@@ -71,7 +71,15 @@ async function readFragmentData(ownerId, id) {
   }
 }
 
-async function deleteFragmentData(ownerId, id) {
+/**
+ * Delete fragment metadata + data.
+ * IMPORTANT: we DON'T throw on S3 delete; metadata is what makes GET 404.
+ */
+async function deleteFragment(ownerId, id) {
+  // 1) Remove metadata from MemoryDB so future GETs 404
+  await memory.deleteFragment(ownerId, id);
+
+  // 2) Best-effort delete from S3
   const params = {
     Bucket: process.env.AWS_S3_BUCKET_NAME,
     Key: `${ownerId}/${id}`,
@@ -81,16 +89,12 @@ async function deleteFragmentData(ownerId, id) {
 
   try {
     await s3Client.send(command);
+    // S3 delete is idempotent; OK even if object didn't exist.
   } catch (err) {
     const { Bucket, Key } = params;
     logger.error({ err, Bucket, Key }, 'Error deleting fragment data from S3');
-    throw new Error('unable to delete fragment data');
+    // Don't rethrow – we still want 200 from the API.
   }
-}
-
-async function deleteFragment(ownerId, id) {
-  await deleteFragmentData(ownerId, id);
-  return memory.deleteFragment(ownerId, id);
 }
 
 module.exports = {

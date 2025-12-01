@@ -7,24 +7,22 @@ const db = new MemoryDB();
 
 // Write fragment metadata
 function writeFragment(ownerId, id, fragment) {
-  db.putFragment(ownerId, id, fragment);
-  return Promise.resolve();
+  return db.putFragment(ownerId, id, fragment);
 }
 
 // Read fragment metadata
 function readFragment(ownerId, id) {
-  return Promise.resolve(db.getFragment(ownerId, id));
+  return db.getFragment(ownerId, id);
 }
 
 // Write fragment data (Buffer)
 function writeFragmentData(ownerId, id, data) {
-  db.putFragmentData(ownerId, id, data);
-  return Promise.resolve();
+  return db.putFragmentData(ownerId, id, data);
 }
 
 // Read fragment data (Buffer)
 function readFragmentData(ownerId, id) {
-  return Promise.resolve(db.getFragmentData(ownerId, id));
+  return db.getFragmentData(ownerId, id);
 }
 
 // List fragment ids for a user
@@ -36,8 +34,7 @@ function listFragments(ownerId, expand = false) {
 
 // Delete fragment (metadata + data)
 function deleteFragment(ownerId, id) {
-  db.deleteFragment(ownerId, id);
-  return Promise.resolve();
+  return db.deleteFragment(ownerId, id);
 }
 
 module.exports = {

@@ -63,8 +63,14 @@ class MemoryDB {
     this.data.delete(key);
   }
 
-   async listFragments(ownerId) {
+  async listFragments(ownerId) {
     return this.queryFragments(ownerId);
+  }
+
+  // delete both metadata + data
+  async deleteFragment(ownerId, id) {
+    await this.delFragment(ownerId, id);
+    await this.delFragmentData(ownerId, id);
   }
 }
 
