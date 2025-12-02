@@ -72,7 +72,6 @@
         }
     ],
     "cpu": "256",
-    "enableFaultInjection": false,
     "executionRoleArn": "arn:aws:iam::905418125292:role/LabRole",
     "family": "fragments-task",
     "memory": "512",
