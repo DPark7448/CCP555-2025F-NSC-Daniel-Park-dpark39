@@ -65,5 +65,5 @@ jobs:
         with:
           task-definition: ${{ steps.update-task-def.outputs.task-definition }}
           cluster: fragments-cluster
-          service: fragments-service
+          service: fragments-task
           wait-for-service-stability: true
