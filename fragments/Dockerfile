@@ -20,7 +20,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # run as non-root (built-in 'node' user exists in node images)
-USER node
+#USER node
 
 EXPOSE 8080
 CMD ["npm","start"]
