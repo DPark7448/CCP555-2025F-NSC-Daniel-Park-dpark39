@@ -1,8 +1,10 @@
 #!/bin/sh
 
-# Absolute path to aws.exe for WSL
-AWS_CLI="/mnt/c/Program Files/Amazon/AWSCLIV2/aws.exe"
-AWS_REGION="us-east-1"
+set -euo pipefail
+
+# Allow overriding AWS_CLI (default: aws on PATH) so this script works on Linux and WSL
+AWS_CLI="${AWS_CLI:-aws}"
+AWS_REGION="${AWS_REGION:-us-east-1}"
 
 echo "Setting AWS environment variables for LocalStack"
 
@@ -20,7 +22,7 @@ echo "AWS_DEFAULT_REGION=$AWS_REGION"
 
 # Wait for LocalStack S3 to be ready (health endpoint)
 echo 'Waiting for LocalStack S3...'
-until (curl http://localhost:4566/_localstack/health 2>/dev/null | grep "\"s3\": \"\(running\|available\)\"" > /dev/null); do
+until (curl -s http://localhost:4566/_localstack/health 2>/dev/null | grep "\"s3\": \"\\(running\\|available\\)\"" > /dev/null); do
   sleep 5
 done
 echo 'LocalStack S3 Ready'
@@ -32,7 +34,7 @@ echo "Creating LocalStack S3 bucket: fragments"
   --region "$AWS_REGION" \
   --endpoint-url=http://localhost:4566 \
   s3api create-bucket \
-  --bucket fragments
+  --bucket fragments || true
 
 # Setup DynamoDB Table with dynamodb-local
 echo "Creating DynamoDB-Local DynamoDB table: fragments"
@@ -49,7 +51,7 @@ AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_SESSION_TOKEN=test \
       AttributeName=ownerId,KeyType=HASH \
       AttributeName=id,KeyType=RANGE \
     --provisioned-throughput \
-      ReadCapacityUnits=10,WriteCapacityUnits=5
+      ReadCapacityUnits=10,WriteCapacityUnits=5 || true
 
 # Wait until the Fragments table exists
 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test AWS_SESSION_TOKEN=test \

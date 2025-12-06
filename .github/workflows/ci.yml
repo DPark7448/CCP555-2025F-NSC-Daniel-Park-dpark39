@@ -64,6 +64,8 @@ jobs:
           node-version: 'lts/*'
           cache: 'npm'
           cache-dependency-path: fragments/package-lock.json
+      - name: Install AWS CLI
+        run: sudo apt-get update && sudo apt-get install -y awscli
       - name: Install node dependencies
         run: npm install
       - name: Build Containers
