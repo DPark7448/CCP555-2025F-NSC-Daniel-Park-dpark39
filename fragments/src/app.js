@@ -19,7 +19,6 @@ app.use(pino);
 app.use(helmet());
 app.use(cors());
 app.use(compression());
-app.use(express.json());
 
 // auth
 passport.use(authenticate.strategy());
