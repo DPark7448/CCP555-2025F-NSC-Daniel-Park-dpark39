@@ -4,8 +4,8 @@ services:
     container_name: fragments-fragments
     init: true
     build: .
-    env_file:
-      - .env
+    #env_file:
+      #- .env
     environment:
       - NODE_ENV=development
       - API_URL=http://localhost:8080
