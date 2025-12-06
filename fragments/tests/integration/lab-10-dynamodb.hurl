@@ -1,11 +1,9 @@
-# tests/integration/lab-10-dynamodb.hurl
-
 # 1. Create a JSON fragment
 POST http://localhost:8080/v1/fragments
 Authorization: Basic dXNlcjFAZW1haWwuY29tOnBhc3N3b3JkMQ==
 Content-Type: application/json
 
-`{"service":"DynamoDB"}`
+{"service":"DynamoDB"}
 
 HTTP/1.1 201
 [Captures]
@@ -16,7 +14,7 @@ fragment1_id: jsonpath "$.fragment.id"
 jsonpath "$.status" == "ok"
 jsonpath "$.fragment.ownerId" == "11d4c22e42c8f61feaba154683dea407b101cfd90987dda9e342843263ca420a"
 jsonpath "$.fragment.type" == "application/json"
-jsonpath "$.fragment.size" == 18
+jsonpath "$.fragment.size" == 22
 
 # 2. Read fragment info
 GET {{fragment1_url}}
@@ -28,14 +26,13 @@ HTTP/1.1 200
 jsonpath "$.fragment.id" == "{{fragment1_id}}"
 jsonpath "$.fragment.ownerId" == "11d4c22e42c8f61feaba154683dea407b101cfd90987dda9e342843263ca420a"
 jsonpath "$.fragment.type" == "application/json"
-jsonpath "$.fragment.size" == 18
+jsonpath "$.fragment.size" == 22
 jsonpath "$.data" == "{\"service\":\"DynamoDB\"}"
 
 # 3. Create a Markdown fragment
 POST http://localhost:8080/v1/fragments
 Authorization: Basic dXNlcjFAZW1haWwuY29tOnBhc3N3b3JkMQ==
 Content-Type: text/markdown
-
 `DynamoDB is great.`
 
 HTTP/1.1 201
