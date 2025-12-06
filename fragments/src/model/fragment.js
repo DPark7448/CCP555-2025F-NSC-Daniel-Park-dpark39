@@ -60,8 +60,7 @@ class Fragment {
       await store.writeFragmentData(this.ownerId, this.id, dataBuffer);
     }
     this.updated = new Date().toISOString();
-    // NOTE: 3-arg API: ownerId, id, fragment meta
-    await store.writeFragment(this.ownerId, this.id, { ...this });
+    await store.writeFragment({ ...this });
     return this;
   }
 

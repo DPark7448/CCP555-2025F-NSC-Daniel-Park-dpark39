@@ -7,7 +7,10 @@ const db = new MemoryDB();
 
 // Write fragment metadata
 function writeFragment(ownerId, id, fragment) {
-  return db.putFragment(ownerId, id, fragment);
+  const meta = fragment || ownerId;
+  const ownerIdVal = meta.ownerId ?? ownerId;
+  const fragmentId = meta.id ?? id;
+  return db.putFragment(ownerIdVal, fragmentId, meta);
 }
 
 // Read fragment metadata
