@@ -87,5 +87,5 @@ Authorization: Basic dXNlcjFAZW1haWwuY29tOnBhc3N3b3JkMQ==
 
 HTTP/1.1 200
 [Asserts]
-body !contains "{{fragment1_id}}"
+body not contains "{{fragment1_id}}"
 body contains "{{fragment2_id}}"
