@@ -10,6 +10,9 @@ const SUPPORTED_TYPES = new Set([
   'text/markdown',
   // NOTE: text/html is intentionally NOT supported for this lab
   'application/json',
+  'image/png',
+  'image/jpeg',
+  'image/webp',
 ]);
 
 class Fragment {
