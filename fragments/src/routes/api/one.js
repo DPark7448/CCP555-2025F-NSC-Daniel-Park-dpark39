@@ -1,6 +1,5 @@
 // src/routes/api/one.js
 
-const path = require('path');
 const sharp = require('sharp');
 const { marked } = require('marked');
 const Fragment = require('../../model/fragment');
@@ -62,10 +61,8 @@ module.exports = async (req, res) => {
 
   try {
     const { buf: outBuf, type: outType } = await convertFragment(frag, buf, ext);
-    res.set('Content-Type', outType);
-
-    // If a conversion or binary type was requested, return raw body; otherwise keep JSON envelope
     if (ext || outType.startsWith('image/')) {
+      res.set('Content-Type', outType);
       return res.status(200).send(outBuf);
     }
 
