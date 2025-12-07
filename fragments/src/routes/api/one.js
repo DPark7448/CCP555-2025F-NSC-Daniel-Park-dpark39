@@ -63,6 +63,7 @@ module.exports = async (req, res) => {
     const { buf: outBuf, type: outType } = await convertFragment(frag, buf, ext);
     if (ext || outType.startsWith('image/')) {
       res.set('Content-Type', outType);
+      res.set('Cache-Control', 'no-store');
       return res.status(200).send(outBuf);
     }
 

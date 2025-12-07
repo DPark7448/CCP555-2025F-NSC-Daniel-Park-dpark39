@@ -14,6 +14,9 @@ const pino = require('pino-http')({ logger });
 
 const app = express();
 
+// Disable ETag to avoid 304 responses for fragment fetch/convert
+app.set('etag', false);
+
 // middleware
 app.use(pino);
 app.use(helmet());
